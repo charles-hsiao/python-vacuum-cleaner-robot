@@ -6,6 +6,16 @@ Work In Process
 
 ## Map Definition
 
+### Floor Defination
+| Floor Type       | Code | Draw Out | Able to Cross | Clean Mode             | 
+| ---------------- | ---- | -------- | ------------- | ---------------------- |
+| Empty            | -2   | X        | X             | -                      |
+| Obstacle         | -1   | O        | X             | -                      |
+| Normal Floor     | 0    | O        | O             | Vacuum Cleaner(Weak)   | 
+| Wet Floor        | 1    | O        | O             | Mop                    |
+| Carpet           | 2    | O        | O             | Vacuum Cleaner(Strong) |
+| Dirty Floor      | 3    | O        | O             | Vacuum Cleaner(Medium) |
+| Floor with Trash | 4    | O        | O             | Broom                  |
 
 #### Example 1:
 ```
