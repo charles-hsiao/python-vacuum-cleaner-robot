@@ -6,6 +6,11 @@ Work In Process
 
 ## Map Definition
 
+### Matrix
+```
+Two-dimensional array, 1st-dimensional as Row, 2nd-dimensional as Column
+```
+
 ### Floor Defination
 | Floor Type       | Code | Draw Out | Able to Cross | Clean Mode             | 
 | ---------------- | ---- | -------- | ------------- | ---------------------- |
@@ -17,6 +22,7 @@ Work In Process
 | Dirty Floor      | 3    | O        | O             | Vacuum Cleaner(Medium) |
 | Floor with Trash | 4    | O        | O             | Broom                  |
 
+### Example
 #### Example 1:
 ```
 map_matrix = [[0, -1, 0], [0, 0, 0], [0, 0, -1]]
