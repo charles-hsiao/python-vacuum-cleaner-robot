@@ -41,7 +41,7 @@ def main():
     total_turns_dfs = 0
 
     #matrix, start_position = random_matrix(3, 3, 1)
-    matrix = [[0, 1, 0], [0, 0, 0], [0, 0, 0]]
+    matrix = [[0, 0, 0], [1, 1, 1], [1, 1, 1]]
     start_position = {'x': 0, 'y': 0}
     print("Start from:")
     print(start_position)
@@ -73,10 +73,10 @@ def main():
     print('steps taken by dfs: %d, turns taken: %d, time taken: %.2fms'
           % (robot.move_count, robot.turn_count, elapsed * 1000))
 
-    #root = tk.Tk()
-    #gui = GUI(root)
-    #gui.draw()
-    #root.mainloop()
+    root = tk.Tk()
+    gui = GUI(root)
+    gui.draw()
+    root.mainloop()
 
 
 if __name__ == '__main__':
