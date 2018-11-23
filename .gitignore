@@ -3,3 +3,6 @@
 
 # Pycharm project files & cache
 .idea
+
+# Mac OS file attribute file
+.DS_Store
