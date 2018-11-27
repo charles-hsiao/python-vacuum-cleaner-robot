@@ -1,5 +1,11 @@
 # Python compiled files
 *.pyc
 
+# Pylambda compiled package folder
+route_api/dist/
+
 # Pycharm project files & cache
 .idea
+
+# Mac OS file attribute file
+.DS_Store
