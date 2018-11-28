@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import time
+import map as Map
 from robot import Robot
 from dfs_sweeper import DFSSweeper
 
@@ -10,7 +11,8 @@ def handler(event, context):
     total_steps_dfs = 0
     total_turns_dfs = 0
 
-    map_matrix = eval(event['map_matrix'])
+    m = eval(event['map_matrix'])
+    map_matrix = Map.map_matrix_transfer(m)
     start_position = eval(event['start_position'])
     start_direction = event['start_direction']
 
@@ -45,7 +47,7 @@ def handler(event, context):
 
 # Debug
 '''
-matrix = "[[0, 0, 0], [1, 1, 1], [1, 1, 1]]"
+matrix = "[[0, -1, 0], [0, 0, 0], [0, 0, -1]]"
 s_position = "{'x': 0, 'y': 0}"
 s_direction = 0
 
