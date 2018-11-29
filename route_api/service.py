@@ -26,13 +26,14 @@ def handler(event, context):
     elapsed = time.time() - start
 
     path_history = robot.path_history
+    path = Map.path_append_attributes(m, path_history)
 
     total_elapsed_dfs += elapsed
     total_steps_dfs += robot.move_count
     total_turns_dfs += robot.turn_count
 
     result = {
-      "path_history": str(path_history),
+      "path": str(path),
       "steps_taken": robot.move_count,
       "turns_taken": robot.turn_count,
       "times_taken": round(elapsed * 1000, 6)
@@ -47,7 +48,7 @@ def handler(event, context):
 
 # Debug
 '''
-matrix = "[[0, -1, 0], [0, 0, 0], [0, 0, -1]]"
+matrix = "[[0, -2, 0], [0, 0, 0], [0, 0, -1]]"
 s_position = "{'x': 0, 'y': 0}"
 s_direction = 0
 

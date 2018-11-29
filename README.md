@@ -11,7 +11,7 @@ Work In Process
 Two-dimensional array, 1st-dimensional as Row, 2nd-dimensional as Column
 ```
 
-### Floor Defination
+### Floor Definition
 | Floor Type       | Code | Draw Out | Able to Cross | Clean Mode             | 
 | ---------------- | ---- | -------- | ------------- | ---------------------- |
 | Empty            | -2   | X        | X             | -                      |
