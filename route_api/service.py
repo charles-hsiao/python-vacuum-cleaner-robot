@@ -48,7 +48,7 @@ def handler(event, context):
 
 # Debug
 '''
-matrix = "[[0, -2, 0], [0, 0, 0], [0, 0, -1]]"
+matrix = "[[-1, -2, 0], [0, 0, 0], [0, 0, -1]]"
 s_position = "{'x': 0, 'y': 0}"
 s_direction = 0
 
