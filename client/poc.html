@@ -1,0 +1,146 @@
+<title>Cleaning Robot Showdown</title>
+
+<link rel="stylesheet" type="text/css" href="style.css">
+
+<h1>
+    Cleaning Robot
+</h1>
+
+<div id="config">
+    <div class="row">
+        <span class="label">Number of rows:</span> <input value="3" type="text" id="rows" />
+    </div>
+    <div class="row">
+        <span class="label">Number of cols:</span> <input value="3" type="text" id="cols" />
+    </div>
+    <div class="row">
+        <span class="label">Number of obstacles:</span> <input value="2" type="text" id="obstacles" />
+    </div>
+    <div class="row">
+        <span class="label">Move transition (ms):</span> <input value="100" type="text" id="move_time" />
+    </div>
+    <button onclick="create_game()">Create Game</button>
+</div>
+
+<div id="game">
+    <div>
+        <button id="btn_run" onclick="run()">Run</button>
+        <button id="btn_reset" onclick="restart()">Create another game</button>
+    </div>
+
+    <h2>
+        Winner: <span id="winner"></span>
+    </h2>
+    <div class="container">
+        <div id="pointer1" class="pointer"></div>
+        <div id="target1" class="target" style="display:none;"></div>
+        <canvas id="canvas1" width="500px" height="500px"></canvas>
+    </div>
+</div>
+
+<!-- Prevent JS cache -->
+<script src="robot.js?q=1a" type="text/javascript"></script>
+
+<script type="text/javascript">
+    let app1 = null;
+    //let app2 = null;
+    //let app3 = null;
+
+    let robot1 = null;
+    //let robot2 = null;
+    //let robot3 = null;
+
+    let map_patrix = null;
+
+    document.addEventListener("DOMContentLoaded", function(event) {
+        document.getElementById('game').style.display = 'none';
+        document.getElementById('btn_reset').style.display = 'none';
+    });
+
+    function restart() {
+        document.getElementById('game').style.display = 'none';
+        document.getElementById('config').style.display = 'block';
+        document.getElementById('btn_reset').style.display = 'none';
+        document.getElementById('btn_run').disabled = false;
+    }
+
+    function create_game() {
+        //let rows = document.getElementById('rows').value;
+        //let cols = document.getElementById('cols').value;
+        let rows = 5;
+        let cols = 5;
+        let obstacles = document.getElementById('obstacles').value;
+        let move_time = document.getElementById('move_time').value;
+
+        app1 = new Application(rows, cols, obstacles, 'canvas1', 'pointer1', 'target1');
+        app1.load_app();
+
+        //map_matrix = [[0, -1, 1], [2, 3, 4], [0, 0, -1]]
+
+        //let input = random_matrix(rows, cols, obstacles);
+	let input = {};
+        //input.matrix = [[0, 0, 0], [0, 0, 0], [0, 0, 1]];
+        map_matrix = [[2, 2, 2, 2, 2], [0, -1, -1, -1, -1], [0, 0, 0, 0, 0], [0, 0, 0, 1, 1], [0, 0, 0, 1, 1]];
+
+        input.matrix = map_matrix;
+        //input.start_position = {"x": 0, "y": 0};
+        input.start_position = {"x": 0, "y": 5};
+
+        app1.begin();
+        robot1 = new Robot(input.matrix, input.start_position, 3, app1);
+        //robot1.move_time = move_time;
+        app1.draw_obstacle(input.matrix);
+
+        document.getElementById('config').style.display = 'none';
+        document.getElementById('game').style.display = 'block';
+    }
+
+    function move_swepper(swepper, x, y, sec) {
+        setTimeout(function(){
+          swepper.move(x, y);
+        }, sec);
+    }
+
+    function draw_path(swepper, path) {
+      //let swepper1 = new RouteDraw(robot1);
+      let time_gap = 500;
+      let sleep = 0;
+
+      for (let i = 0; i < path.length; i++) {
+        spot_x = path[i][0];
+        spot_y = path[i][1];
+        move_swepper(swepper, spot_x, spot_y, sleep + i*time_gap);
+      }
+    }
+
+    function run() {
+        //document.getElementById('btn_run').disabled = true;
+        api_route_plan();
+    }
+
+    function api_route_plan() {
+      var data = {};
+      data.map_matrix = JSON.stringify(map_matrix);
+      data.start_position = '{"x": 0, "y": 5}';
+      data.start_direction = 0
+      var json = JSON.stringify(data);
+
+      var req = new XMLHttpRequest();
+      req.open('POST', 'https://ai-api.charles-hsiao.com/v1/route');
+      req.setRequestHeader('Content-type', 'application/json');
+      req.withCredentials = false;
+      req.onload = function() {
+        console.log(req);
+        var obj = JSON.parse(req.responseText);
+        let swepper1 = new RouteDraw(robot1);
+        let obj_path = JSON.parse(obj.path);
+        draw_path(swepper1, obj_path);
+        //document.getElementById('span_path').innerHTML = obj.path;
+        //document.getElementById('span_steps_taken').innerHTML = obj.steps_taken;
+        //document.getElementById('span_turns_taken').innerHTML = obj.turns_taken;
+        //document.getElementById('span_times_taken').innerHTML = obj.times_taken;
+      };
+      req.send(json);
+    }
+
+</script>

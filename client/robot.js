@@ -28,25 +28,36 @@ class Application {
 
         var ctx = this.canvas.getContext('2d');
 
+        /*
+        var img = new Image();
+        img.src = 'image/layout-main5.jpg';
+
+        img.onload = function() {
+          ctx.drawImage(this, 0, 0, width, height);
+        };
+        */
+//ctx.drawImage(img,0,0);
+
         for(let i = 0; i < matrix.length; i++) {
             for(let j = 0; j < matrix[i].length; j++) {
                 if (matrix[i][j] != 0) {
-					if (matrix[i][j] == -2)
-						ctx.fillStyle="#000000";
-					else if (matrix[i][j] == -1)
-						ctx.fillStyle="#000000";
-					else if (matrix[i][j] == 1)
-						ctx.fillStyle="#00ffff";
-					else if (matrix[i][j] == 2)
-						ctx.fillStyle="#adadad";
-					else if (matrix[i][j] == 3)
-						ctx.fillStyle="#e0e0e0";
-					else if (matrix[i][j] == 4)
-						ctx.fillStyle="#ffaf60";
-                    ctx.fillRect(j * col_width, i * row_height, col_width, row_height);
+		  if (matrix[i][j] == -2)
+		    ctx.fillStyle="#000000";
+		  else if (matrix[i][j] == -1)
+		    ctx.fillStyle="#000000";
+		  else if (matrix[i][j] == 1)
+		    ctx.fillStyle="#00ffff";
+		  else if (matrix[i][j] == 2)
+		    ctx.fillStyle="#adadad";
+		  else if (matrix[i][j] == 3)
+		    ctx.fillStyle="#e0e0e0";
+		  else if (matrix[i][j] == 4)
+		    ctx.fillStyle="#ffaf60";
+                  ctx.fillRect(j * col_width, i * row_height, col_width, row_height);
                 }
             }
         }
+
     }
 
     begin() {
