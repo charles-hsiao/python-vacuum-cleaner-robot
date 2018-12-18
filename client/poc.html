@@ -1,56 +1,89 @@
 <title>Cleaning Robot Showdown</title>
 
 <link rel="stylesheet" type="text/css" href="style.css">
-
+<!--
 <h1>
     Cleaning Robot
 </h1>
-
+-->
 <div id="config">
+
+  <div class="container">
     <div class="row">
-        <span class="label">Number of rows:</span> <input value="3" type="text" id="rows" />
+      <span class="label">Example 1</span>
     </div>
     <div class="row">
-        <span class="label">Number of cols:</span> <input value="3" type="text" id="cols" />
+      <input type="image" src="image/example_1.png" style="width:300px;height:300px;" onclick="create_game('example_1');">
     </div>
     <div class="row">
-        <span class="label">Number of obstacles:</span> <input value="2" type="text" id="obstacles" />
+      <span class="label">Map matrix:</span>
     </div>
     <div class="row">
-        <span class="label">Move transition (ms):</span> <input value="100" type="text" id="move_time" />
+      <textarea id="map_matrix_1" rows="5" cols="30" disabled="disabled">[[0, -1, -2], [2, 0, 0], [3, 4, -1]]</textarea>
     </div>
-    <button onclick="create_game()">Create Game</button>
+  </div>
+
+  <div class="container">
+    <div class="row">
+      <span class="label">Example 2</span>
+    </div>
+    <div class="row">
+      <input type="image" src="image/example_2.png" style="width:300px;height:300px;" onclick="create_game('example_2');">
+    </div>
+    <div class="row">
+      <span class="label">Map matrix:</span>
+    </div>
+    <div class="row">
+      <textarea id="map_matrix_2" rows="5" cols="30" disabled="disabled">[[1, 0, -1], [0, 0, 2], [0, 0, 2]]</textarea>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="row">
+      <span class="label">Example 3</span>
+    </div>
+    <div class="row">
+      <input type="image" src="image/example_3.png" style="width:300px;height:300px;" onclick="create_game('example_3');">
+    </div>
+    <div class="row">
+      <span class="label">Map matrix:</span>
+    </div>
+    <div class="row">
+      <textarea id="map_matrix_3" rows="5" cols="30" disabled="disabled">[[2, 2, 2, 2, 2], [0, -1, -1, -1, -1], [0, 0, 0, 0, 0], [0, 0, 0, 1, 1], [0, 0, 0, 1, 1]]</textarea>
+    </div>
+  </div>
+
 </div>
 
 <div id="game">
     <div>
-        <button id="btn_run" onclick="run()">Run</button>
         <button id="btn_reset" onclick="restart()">Create another game</button>
     </div>
-
+  <!--
     <h2>
         Winner: <span id="winner"></span>
     </h2>
+  -->
     <div class="container">
-        <div id="pointer1" class="pointer"></div>
-        <div id="target1" class="target" style="display:none;"></div>
-        <canvas id="canvas1" width="500px" height="500px"></canvas>
+        <div id="pointer" class="pointer"></div>
+        <div id="target" class="target" style="display:none;"></div>
+        <canvas id="canvas" width="500px" height="500px"></canvas>
     </div>
 </div>
 
 <!-- Prevent JS cache -->
-<script src="robot.js?q=1a" type="text/javascript"></script>
+<script src="robot.js?q=aea" type="text/javascript"></script>
 
 <script type="text/javascript">
     let app1 = null;
-    //let app2 = null;
-    //let app3 = null;
-
     let robot1 = null;
-    //let robot2 = null;
-    //let robot3 = null;
 
     let map_patrix = null;
+    let rows = null;
+    let cols = null;
+    let start_position_x = null;
+    let start_position_y = null;
+    let move_time = null;
 
     document.addEventListener("DOMContentLoaded", function(event) {
         document.getElementById('game').style.display = 'none';
@@ -61,68 +94,56 @@
         document.getElementById('game').style.display = 'none';
         document.getElementById('config').style.display = 'block';
         document.getElementById('btn_reset').style.display = 'none';
-        document.getElementById('btn_run').disabled = false;
     }
 
-    function create_game() {
-        //let rows = document.getElementById('rows').value;
-        //let cols = document.getElementById('cols').value;
-        let rows = 5;
-        let cols = 5;
-        let obstacles = document.getElementById('obstacles').value;
-        let move_time = document.getElementById('move_time').value;
-
-        app1 = new Application(rows, cols, obstacles, 'canvas1', 'pointer1', 'target1');
-        app1.load_app();
-
-        //map_matrix = [[0, -1, 1], [2, 3, 4], [0, 0, -1]]
-
-        //let input = random_matrix(rows, cols, obstacles);
-	let input = {};
-        //input.matrix = [[0, 0, 0], [0, 0, 0], [0, 0, 1]];
-        map_matrix = [[2, 2, 2, 2, 2], [0, -1, -1, -1, -1], [0, 0, 0, 0, 0], [0, 0, 0, 1, 1], [0, 0, 0, 1, 1]];
-
-        input.matrix = map_matrix;
-        //input.start_position = {"x": 0, "y": 0};
-        input.start_position = {"x": 0, "y": 5};
-
-        app1.begin();
-        robot1 = new Robot(input.matrix, input.start_position, 3, app1);
-        //robot1.move_time = move_time;
-        app1.draw_obstacle(input.matrix);
-
-        document.getElementById('config').style.display = 'none';
-        document.getElementById('game').style.display = 'block';
-    }
-
-    function move_swepper(swepper, x, y, sec) {
-        setTimeout(function(){
-          swepper.move(x, y);
-        }, sec);
-    }
-
-    function draw_path(swepper, path) {
-      //let swepper1 = new RouteDraw(robot1);
-      let time_gap = 500;
-      let sleep = 0;
-
-      for (let i = 0; i < path.length; i++) {
-        spot_x = path[i][0];
-        spot_y = path[i][1];
-        move_swepper(swepper, spot_x, spot_y, sleep + i*time_gap);
+    function create_game(example_str) {
+      if(example_str == 'example_1'){
+        map_matrix_str = document.getElementById('map_matrix_1').value;
+        start_position_x = 0;
+        start_position_y = 0;
+        move_time = 100;
       }
-    }
+      else if(example_str == 'example_2'){
+        map_matrix_str = document.getElementById('map_matrix_2').value;
+        start_position_x = 0;
+        start_position_y = 0;
+        move_time = 100;
+      }
+      else {
+        map_matrix_str = document.getElementById('map_matrix_3').value;
+        start_position_x = 0;
+        start_position_y = 0;
+        move_time = 100;
+      }
 
-    function run() {
-        //document.getElementById('btn_run').disabled = true;
-        api_route_plan();
+      eval('map_matrix=' + map_matrix_str);
+
+      rows = map_matrix.length;
+      cols = map_matrix[0].length;
+
+      app1 = new Application(rows, cols, 'canvas', 'pointer', 'target');
+      app1.load_app(map_matrix);
+
+      let input = {};
+      input.matrix = map_matrix;
+      input.start_position = {"x": start_position_x, "y": start_position_y};
+
+      //app1.begin();
+      robot1 = new Robot(app1, input.matrix, input.start_position, input.move_time);
+      app1.draw_obstacle(input.matrix);
+
+      document.getElementById('config').style.display = 'none';
+      document.getElementById('game').style.display = 'block';
+
+      // Call API
+      api_route_plan();
     }
 
     function api_route_plan() {
       var data = {};
       data.map_matrix = JSON.stringify(map_matrix);
-      data.start_position = '{"x": 0, "y": 5}';
-      data.start_direction = 0
+      data.start_position = JSON.stringify({"x": start_position_x, "y": start_position_y});
+      data.start_direction = 0;
       var json = JSON.stringify(data);
 
       var req = new XMLHttpRequest();
@@ -143,4 +164,25 @@
       req.send(json);
     }
 
+    function draw_path(swepper, path) {
+      let time_gap = move_time;
+      let sleep = 0;
+
+      // Clear start position color if necessary
+      //move_swepper(swepper, start_position_x, start_position_y, sleep + time_gap);
+      app1.clear_floor(start_position_x, start_position_y, sleep + time_gap);
+
+      for (let i = 0; i < path.length; i++) {
+        spot_x = path[i][0];
+        spot_y = path[i][1];
+        move_swepper(swepper, spot_x, spot_y, sleep + i*time_gap);
+      }
+    }
+
+    function move_swepper(swepper, x, y, sec) {
+        setTimeout(function(){
+          swepper.move(x, y);
+          console.log('[Move]' + x + ',' + y);
+        }, sec);
+    }
 </script>
