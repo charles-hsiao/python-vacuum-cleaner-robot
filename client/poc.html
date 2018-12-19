@@ -72,7 +72,7 @@
 </div>
 
 <!-- Prevent JS cache -->
-<script src="robot.js?q=aea" type="text/javascript"></script>
+<script src="robot.js?q=es9a" type="text/javascript"></script>
 
 <script type="text/javascript">
     let app1 = null;
@@ -101,7 +101,7 @@
         map_matrix_str = document.getElementById('map_matrix_1').value;
         start_position_x = 0;
         start_position_y = 0;
-        move_time = 100;
+        move_time = 500;
       }
       else if(example_str == 'example_2'){
         map_matrix_str = document.getElementById('map_matrix_2').value;
@@ -131,6 +131,7 @@
       //app1.begin();
       robot1 = new Robot(app1, input.matrix, input.start_position, input.move_time);
       app1.draw_obstacle(input.matrix);
+      app1.begin(robot1);
 
       document.getElementById('config').style.display = 'none';
       document.getElementById('game').style.display = 'block';
@@ -151,7 +152,7 @@
       req.setRequestHeader('Content-type', 'application/json');
       req.withCredentials = false;
       req.onload = function() {
-        console.log(req);
+        //console.log(req);
         var obj = JSON.parse(req.responseText);
         let swepper1 = new RouteDraw(robot1);
         let obj_path = JSON.parse(obj.path);
@@ -166,11 +167,10 @@
 
     function draw_path(swepper, path) {
       let time_gap = move_time;
-      let sleep = 0;
+      let sleep = 1000;
 
       // Clear start position color if necessary
-      //move_swepper(swepper, start_position_x, start_position_y, sleep + time_gap);
-      app1.clear_floor(start_position_x, start_position_y, sleep + time_gap);
+      app1.clear_floor_start(start_position_x, start_position_y);
 
       for (let i = 0; i < path.length; i++) {
         spot_x = path[i][0];

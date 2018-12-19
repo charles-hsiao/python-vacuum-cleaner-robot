@@ -8,23 +8,46 @@ class Application {
         this.target_id = target_id;
         this.canvas = null;
         this.pointer = null;
-        this.ctx = null;
+        //this.ctx = null;
     }
 
     load_app(matrix) {
         this.canvas = document.getElementById(this.canvas_id);
         this.pointer = document.getElementById(this.pointer_id);
-        this.ctx = this.canvas.getContext('2d');
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        //this.ctx = this.canvas.getContext('2d');
+        //this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    draw_obstacle(matrix) {
+    begin(robot) {
+        var ctx = this.canvas.getContext('2d');
+        ctx.beginPath();
+
         let width = this.canvas.width;
         let height = this.canvas.height;
 
         let row_height = height / this.rows;
         let col_width = width / this.cols;
 
+        let x = (robot.start_position.x + 0.5) * col_width;
+        let y = (robot.start_position.y + 0.5) * row_height;
+
+        ctx.moveTo(x, y);
+    }
+
+    finish() {
+      var ctx = this.canvas.getContext('2d');
+      ctx.stroke();
+    }
+
+    draw_obstacle(matrix) {
+       //this.ctx.beginPath();
+        let width = this.canvas.width;
+        let height = this.canvas.height;
+
+        let row_height = height / this.rows;
+        let col_width = width / this.cols;
+
+        var ctx = this.canvas.getContext('2d');
         /*
         var img = new Image();
         img.src = 'image/layout-main5.jpg';
@@ -34,31 +57,41 @@ class Application {
         };
         */
 //ctx.drawImage(img,0,0);
+        //this.ctx.beginPath();
         for(let i = 0; i < matrix.length; i++) {
             for(let j = 0; j < matrix[i].length; j++) {
-                if (matrix[i][j] != 0) {
+                if (matrix[i][j] == -1 || matrix[i][j] == 1 || matrix[i][j] == 2) {
 		              if (matrix[i][j] == -1)
-		                this.ctx.fillStyle="#000000";
+		                ctx.fillStyle="#000000";
 		              else if (matrix[i][j] == 1)
-		                this.ctx.fillStyle="#00ffff";
+		                ctx.fillStyle="#00ffff";
 		              else if (matrix[i][j] == 2)
-		                this.ctx.fillStyle="#adadad";
-		              else if (matrix[i][j] == 3)
-		                this.ctx.fillStyle="#e0e0e0";
-		              else if (matrix[i][j] == 4)
-		                this.ctx.fillStyle="#ffaf60";
+		                ctx.fillStyle="#adadad";
+		              //else if (matrix[i][j] == 3)
+		              //  this.ctx.fillStyle="#e0e0e0";
+		              //else if (matrix[i][j] == 4)
+		              //  this.ctx.fillStyle="#ffaf60";
 
-                  if (matrix[i][j] != -2){
-                    this.ctx.fillRect(j * col_width, i * row_height, col_width, row_height);
-                  }
+                  //if (matrix[i][j] != -2){
+                  ctx.fillRect(j * col_width, i * row_height, col_width, row_height);
+                  //}
+                }
+
+                //if (matrix[i][j] == 3 || matrix[i][j] == 4) {
+                //let ctx2 = this.ctx;
+                if (matrix[i][j] == 3){
+                  ctx.beginPath();
+                  ctx.arc(j*col_width + col_width/2, i*row_height + row_height/2, 5, 0, 360, false);
+                  ctx.stroke();
                 }
 
                 if (matrix[i][j] != -2) {
-                  this.ctx.strokeStyle = '#000000';
-                  this.ctx.strokeRect(j * col_width, i * row_height, col_width, row_height);
+                  ctx.strokeStyle = '#000000';
+                  ctx.strokeRect(j * col_width, i * row_height, col_width, row_height);
                 }
             }
         }
+        //this.ctx.stroke();
 
     }
 
@@ -72,21 +105,43 @@ class Application {
       let x = (robot.current_position.x + 0.5) * col_width;
       let y = (robot.current_position.y + 0.5) * row_height;
 
+      var ctx = this.canvas.getContext('2d');
       if (first_time)
-        this.ctx.moveTo(x, y);
+        ctx.moveTo(x, y);
       else
-        this.ctx.lineTo(x, y);
+        ctx.lineTo(x, y);
 
       this.pointer.style.transform = 'translate('+x+'px, '+y+'px)';
-      this.ctx.strokeStyle = '#ff0000';
-      this.ctx.stroke();
+      ctx.strokeStyle = '#ff0000';
+      ctx.stroke();
     }
 
     clear_floor(from_x, from_y, width, height){
-      console.log('[pos]' + from_x + ',' + from_y + ',' + width + ',' + height);
-      this.ctx.clearRect(from_x, from_y, width, height);
-      this.ctx.strokeStyle = '#000000';
-      this.ctx.strokeRect(from_x, from_y, width, height);
+      var ctx = this.canvas.getContext('2d');
+      //console.log('[pos]' + from_x + ',' + from_y + ',' + width + ',' + height);
+      ctx.clearRect(from_x, from_y, width, height);
+      //this.ctx.fillStyle="#ffffff";
+      //this.ctx.fillRect(from_x, from_y, width, height);
+
+      ctx.strokeStyle = '#000000';
+      ctx.strokeRect(from_x, from_y, width, height);
+    }
+
+    clear_floor_start(start_x, start_y){
+      var ctx = this.canvas.getContext('2d');
+      let width = this.canvas.width;
+      let height = this.canvas.height;
+      let row_height = height / this.rows;
+      let col_width = width / this.cols;
+
+      //this.ctx.fillStyle="#ffffff";
+      //this.ctx.fillRect(start_x, start_y, col_width, row_height);
+      if(map_matrix[start_y][start_x] == 1 || map_matrix[start_y][start_x] == 3 ||
+          map_matrix[start_y][start_x] == 4){
+        ctx.clearRect(start_x, start_y, col_width, row_height);
+        ctx.strokeStyle = '#000000';
+        ctx.strokeRect(start_x, start_y, col_width, row_height);
+      }
     }
 
 }
@@ -119,10 +174,11 @@ class Robot {
     }
 
     move(next_pos_x, next_pos_y) {
+      //this.app.begin();
         this.move_count++;
         this.current_position.x = next_pos_x;
         this.current_position.y = next_pos_y;
-        this.app.update_position(this);
+        //this.app.update_position(this);
 
         // Clear floor after sweep
         let width = this.app.canvas.width;
@@ -139,6 +195,9 @@ class Robot {
         }
 
         this.__visited_position[next_pos_x + "_" + next_pos_y] = 1;
+
+        this.app.update_position(this);
+        //this.app.finish();
     }
 
     __can_move(next_pos_x, next_pos_y) {
