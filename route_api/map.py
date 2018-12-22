@@ -37,27 +37,45 @@ def map_matrix_transfer(matrix):
 
 
 def path_append_attributes(matrix, path):
+    cleared_path = {}
     new_path = []
     for spot in path:
         x = spot[0]
         y = spot[1]
         floor_type = matrix[y][x]
+        key = str(x) + '_' + str(y)
+        is_exist = False
+
+        if key in cleared_path:
+            is_exist = True
 
         if floor_type == 0:  # Normal Floor
             clean_mode = 1
             strength = 1
         elif floor_type == 1:  # Wet Floor
-            clean_mode = 2
-            strength = 0
+            if is_exist:
+                clean_mode = 1
+                strength = 1
+            else:
+                clean_mode = 2
+                strength = 0
         elif floor_type == 2:  # Carpet
             clean_mode = 1
             strength = 3
         elif floor_type == 3:  # Dirty Floor
-            clean_mode = 1
-            strength = 2
+            if is_exist:
+                clean_mode = 1
+                strength = 1
+            else:
+                clean_mode = 1
+                strength = 2
         elif floor_type == 4:  # Floor with Trash
-            clean_mode = 3
-            strength = 0
+            if is_exist:
+                clean_mode = 1
+                strength = 1
+            else:
+                clean_mode = 3
+                strength = 0
         elif floor_type == -1:  # Empty (should not happen)
             clean_mode = 0
             strength = 0
@@ -70,6 +88,8 @@ def path_append_attributes(matrix, path):
 
         new_spot = [x, y, clean_mode, strength]
         new_path.append(new_spot)
+
+        cleared_path[key] = 1
 
     return new_path
 
