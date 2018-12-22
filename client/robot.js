@@ -60,29 +60,117 @@ class Application {
         //this.ctx.beginPath();
         for(let i = 0; i < matrix.length; i++) {
             for(let j = 0; j < matrix[i].length; j++) {
-                if (matrix[i][j] == -1 || matrix[i][j] == 1 || matrix[i][j] == 2) {
-		              if (matrix[i][j] == -1)
-		                ctx.fillStyle="#000000";
-		              else if (matrix[i][j] == 1)
-		                ctx.fillStyle="#00ffff";
-		              else if (matrix[i][j] == 2)
-		                ctx.fillStyle="#adadad";
-		              //else if (matrix[i][j] == 3)
-		              //  this.ctx.fillStyle="#e0e0e0";
-		              //else if (matrix[i][j] == 4)
-		              //  this.ctx.fillStyle="#ffaf60";
+                let floor_type = matrix[i][j];
 
-                  //if (matrix[i][j] != -2){
+                if (floor_type == -1 || floor_type == 2) {
+		              if (floor_type == -1)
+		                ctx.fillStyle="#000000";
+		              else if (floor_type == 2)
+		                ctx.fillStyle="#adadad";
+
                   ctx.fillRect(j * col_width, i * row_height, col_width, row_height);
-                  //}
                 }
 
-                //if (matrix[i][j] == 3 || matrix[i][j] == 4) {
-                //let ctx2 = this.ctx;
-                if (matrix[i][j] == 3){
-                  ctx.beginPath();
-                  ctx.arc(j*col_width + col_width/2, i*row_height + row_height/2, 5, 0, 360, false);
-                  ctx.stroke();
+                // Wet floor
+                if (floor_type == 1){
+                  let img_base_url = 'image/';
+                  let water_img_list = [
+                    img_base_url+'water-coffee_1.png',
+                    img_base_url+'water-coffee_2.png',
+                    img_base_url+'water-spalsh_1.jpg',
+                    img_base_url+'water-spalsh_2.png',
+                    img_base_url+'water-spalsh_3.png'
+                  ];
+
+                  var img = new Image();
+                  img.src = water_img_list[Math.floor(Math.random() * water_img_list.length)]
+                  let water_size = 0;
+                  if (col_width >= row_height){
+                    let resize_rate = this.getRandomInt(1, 3);
+                    water_size = Math.floor( row_height/resize_rate );
+                  }
+                  else{
+                    let resize_rate = this.getRandomInt(1, 3);
+                    water_size = Math.floor( col_width/resize_rate );
+                  }
+
+                  if (water_size < 20){
+                     water_size = 20;
+                  }
+
+                  let dot_x = this.getRandomInt(j*col_width, j*col_width + col_width - water_size);
+                  let dot_y = this.getRandomInt(i*row_height, i*row_height + row_height - water_size);
+
+                  img.onload = function() {
+                    ctx.drawImage(this, dot_x, dot_y, water_size, water_size);
+                  };
+                }
+
+                // Dirty floor
+                if (floor_type == 3){
+                  let dot_num = this.getRandomInt(10, 50);
+                  let dot_size = 1;
+
+                  for(let k=0; k < dot_num; k++){
+                    ctx.beginPath();
+                    let dot_x = this.getRandomInt(j*col_width, j*col_width + col_width);
+                    let dot_y = this.getRandomInt(i*row_height, i*row_height + row_height);
+                    ctx.arc(dot_x, dot_y, dot_size, 0, 2*Math.PI);
+                    ctx.stroke();
+                  }
+                }
+
+                // Floor with trash
+                if (floor_type == 4){
+                  /*
+                  let dot_num = this.getRandomInt(2, 10);
+                  let dot_size = this.getRandomInt(5, 10);
+
+                  for(let k=0; k < dot_num; k++){
+                    ctx.beginPath();
+                    let dot_x = this.getRandomInt(j*col_width, j*col_width + col_width - dot_size);
+                    let dot_y = this.getRandomInt(i*row_height, i*row_height + row_height - dot_size);
+                    ctx.arc(dot_x, dot_y, dot_size, 0, 2*Math.PI);
+                    ctx.stroke();
+                  }
+                  */
+                  let img_base_url = 'image/';
+                  let trash_img_list = [
+                    img_base_url+'trash-banana.jpg',
+                    img_base_url+'trash-paper_wad.png',
+                    img_base_url+'trash-can.jpg',
+                    img_base_url+'item-pen.png',
+                    img_base_url+'item-slipper.png',
+                    img_base_url+'item-toy_1.jpeg',
+                    img_base_url+'item-toy_2.png',
+                    img_base_url+'item-toy_3.png',
+                    img_base_url+'item-toy_4.png',
+                    img_base_url+'item-toy_5.png'
+                  ];
+
+                  var img = new Image();
+                  img.src = trash_img_list[Math.floor(Math.random() * trash_img_list.length)]
+                  let trash_size = 0;
+                  if (col_width >= row_height){
+                    let resize_rate = this.getRandomInt(3, 5);
+                    trash_size = Math.floor( row_height/resize_rate );
+                  }
+                  else{
+                    let resize_rate = this.getRandomInt(3, 5);
+                    trash_size = Math.floor( col_width/resize_rate );
+                  }
+
+                  if (trash_size < 20){
+                     trash_size = 20;
+                  }
+
+                  let dot_x = this.getRandomInt(j*col_width, j*col_width + col_width - trash_size);
+                  let dot_y = this.getRandomInt(i*row_height, i*row_height + row_height - trash_size);
+
+                  img.onload = function() {
+                    ctx.drawImage(this, dot_x, dot_y, trash_size, trash_size);
+                  };
+
                 }
 
                 if (matrix[i][j] != -2) {
@@ -91,8 +179,12 @@ class Application {
                 }
             }
         }
-        //this.ctx.stroke();
+    }
 
+    getRandomInt(min, max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     update_position(robot, first_time) {
