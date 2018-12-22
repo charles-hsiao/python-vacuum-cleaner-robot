@@ -12,15 +12,15 @@ Two-dimensional array, 1st-dimensional as Row, 2nd-dimensional as Column
 ```
 
 ### Floor Definition
-| Floor Type       | Code | Draw Out | Able to Cross | Clean Mode             | 
-| ---------------- | ---- | -------- | ------------- | ---------------------- |
-| Empty            | -2   | X        | X             | -                      |
-| Obstacle         | -1   | O        | X             | -                      |
-| Normal Floor     | 0    | O        | O             | Vacuum Cleaner(Weak)   | 
-| Wet Floor        | 1    | O        | O             | Mop                    |
-| Carpet           | 2    | O        | O             | Vacuum Cleaner(Strong) |
-| Dirty Floor      | 3    | O        | O             | Vacuum Cleaner(Medium) |
-| Floor with Trash | 4    | O        | O             | Broom                  |
+| Floor Type       | Code | Draw Out | Able to Cross | Clean Mode (Code)           | Clean Strength (Value) 
+| ---------------- | ---- | -------- | ------------- | --------------------------- | --------------------
+| Empty            | -2   | X        | X             | - (0)                       | None (0) 
+| Obstacle         | -1   | O        | X             | - (0)                       | None (0)
+| Normal Floor     | 0    | O        | O             | Vacuum Cleaner - Weak (1)   | Weak (1)
+| Wet Floor        | 1    | O        | O             | Mop (2)                     | None (0)
+| Carpet           | 2    | O        | O             | Vacuum Cleaner - Strong (1) | Strong (3)
+| Dirty Floor      | 3    | O        | O             | Vacuum Cleaner - Medium(1)  | Medium (2)
+| Floor with Trash | 4    | O        | O             | Broom (3)                   | None (0)
 
 ### Example
 #### Example 1:
