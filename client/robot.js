@@ -1,25 +1,46 @@
 class Application {
 
-    constructor(rows, cols, obstacles, canvas_id, pointer_id, target_id) {
+    constructor(rows, cols, canvas_id, pointer_id, target_id) {
         this.rows = rows;
         this.cols = cols;
-        this.obstacles = obstacles;
         this.canvas_id = canvas_id;
         this.pointer_id = pointer_id;
         this.target_id = target_id;
         this.canvas = null;
         this.pointer = null;
+        //this.ctx = null;
     }
 
-    load_app() {
+    load_app(matrix) {
         this.canvas = document.getElementById(this.canvas_id);
         this.pointer = document.getElementById(this.pointer_id);
+        //this.ctx = this.canvas.getContext('2d');
+        //this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+
+    begin(robot) {
         var ctx = this.canvas.getContext('2d');
-        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.draw_grid(ctx);
+        ctx.beginPath();
+
+        let width = this.canvas.width;
+        let height = this.canvas.height;
+
+        let row_height = height / this.rows;
+        let col_width = width / this.cols;
+
+        let x = (robot.start_position.x + 0.5) * col_width;
+        let y = (robot.start_position.y + 0.5) * row_height;
+
+        ctx.moveTo(x, y);
+    }
+
+    finish() {
+      var ctx = this.canvas.getContext('2d');
+      ctx.stroke();
     }
 
     draw_obstacle(matrix) {
+       //this.ctx.beginPath();
         let width = this.canvas.width;
         let height = this.canvas.height;
 
@@ -27,7 +48,6 @@ class Application {
         let col_width = width / this.cols;
 
         var ctx = this.canvas.getContext('2d');
-
         /*
         var img = new Image();
         img.src = 'image/layout-main5.jpg';
@@ -37,113 +57,200 @@ class Application {
         };
         */
 //ctx.drawImage(img,0,0);
-
+        //this.ctx.beginPath();
         for(let i = 0; i < matrix.length; i++) {
             for(let j = 0; j < matrix[i].length; j++) {
-                if (matrix[i][j] != 0) {
-		  if (matrix[i][j] == -2)
-		    ctx.fillStyle="#000000";
-		  else if (matrix[i][j] == -1)
-		    ctx.fillStyle="#000000";
-		  else if (matrix[i][j] == 1)
-		    ctx.fillStyle="#00ffff";
-		  else if (matrix[i][j] == 2)
-		    ctx.fillStyle="#adadad";
-		  else if (matrix[i][j] == 3)
-		    ctx.fillStyle="#e0e0e0";
-		  else if (matrix[i][j] == 4)
-		    ctx.fillStyle="#ffaf60";
+                let floor_type = matrix[i][j];
+
+                if (floor_type == -1 || floor_type == 2) {
+		              if (floor_type == -1)
+		                ctx.fillStyle="#000000";
+		              else if (floor_type == 2)
+		                ctx.fillStyle="#adadad";
+
                   ctx.fillRect(j * col_width, i * row_height, col_width, row_height);
+                }
+
+                // Wet floor
+                if (floor_type == 1){
+                  let img_base_url = 'image/';
+                  let water_img_list = [
+                    img_base_url+'water-coffee_1.png',
+                    img_base_url+'water-coffee_2.png',
+                    img_base_url+'water-spalsh_1.jpg',
+                    img_base_url+'water-spalsh_2.png',
+                    img_base_url+'water-spalsh_3.png'
+                  ];
+
+                  var img = new Image();
+                  img.src = water_img_list[Math.floor(Math.random() * water_img_list.length)]
+                  let water_size = 0;
+                  if (col_width >= row_height){
+                    let resize_rate = this.getRandomInt(1, 3);
+                    water_size = Math.floor( row_height/resize_rate );
+                  }
+                  else{
+                    let resize_rate = this.getRandomInt(1, 3);
+                    water_size = Math.floor( col_width/resize_rate );
+                  }
+
+                  if (water_size < 20){
+                     water_size = 20;
+                  }
+
+                  let dot_x = this.getRandomInt(j*col_width, j*col_width + col_width - water_size);
+                  let dot_y = this.getRandomInt(i*row_height, i*row_height + row_height - water_size);
+
+                  img.onload = function() {
+                    ctx.drawImage(this, dot_x, dot_y, water_size, water_size);
+                  };
+                }
+
+                // Dirty floor
+                if (floor_type == 3){
+                  let dot_num = this.getRandomInt(10, 50);
+                  let dot_size = 1;
+
+                  for(let k=0; k < dot_num; k++){
+                    ctx.beginPath();
+                    let dot_x = this.getRandomInt(j*col_width, j*col_width + col_width);
+                    let dot_y = this.getRandomInt(i*row_height, i*row_height + row_height);
+                    ctx.arc(dot_x, dot_y, dot_size, 0, 2*Math.PI);
+                    ctx.stroke();
+                  }
+                }
+
+                // Floor with trash
+                if (floor_type == 4){
+                  /*
+                  let dot_num = this.getRandomInt(2, 10);
+                  let dot_size = this.getRandomInt(5, 10);
+
+                  for(let k=0; k < dot_num; k++){
+                    ctx.beginPath();
+                    let dot_x = this.getRandomInt(j*col_width, j*col_width + col_width - dot_size);
+                    let dot_y = this.getRandomInt(i*row_height, i*row_height + row_height - dot_size);
+                    ctx.arc(dot_x, dot_y, dot_size, 0, 2*Math.PI);
+                    ctx.stroke();
+                  }
+                  */
+                  let img_base_url = 'image/';
+                  let trash_img_list = [
+                    img_base_url+'trash-banana.jpg',
+                    img_base_url+'trash-paper_wad.png',
+                    img_base_url+'trash-can.jpg',
+                    img_base_url+'item-pen.png',
+                    img_base_url+'item-slipper.png',
+                    img_base_url+'item-toy_1.jpeg',
+                    img_base_url+'item-toy_2.png',
+                    img_base_url+'item-toy_3.png',
+                    img_base_url+'item-toy_4.png',
+                    img_base_url+'item-toy_5.png'
+                  ];
+
+                  var img = new Image();
+                  img.src = trash_img_list[Math.floor(Math.random() * trash_img_list.length)]
+                  let trash_size = 0;
+                  if (col_width >= row_height){
+                    let resize_rate = this.getRandomInt(3, 5);
+                    trash_size = Math.floor( row_height/resize_rate );
+                  }
+                  else{
+                    let resize_rate = this.getRandomInt(3, 5);
+                    trash_size = Math.floor( col_width/resize_rate );
+                  }
+
+                  if (trash_size < 20){
+                     trash_size = 20;
+                  }
+
+                  let dot_x = this.getRandomInt(j*col_width, j*col_width + col_width - trash_size);
+                  let dot_y = this.getRandomInt(i*row_height, i*row_height + row_height - trash_size);
+
+                  img.onload = function() {
+                    ctx.drawImage(this, dot_x, dot_y, trash_size, trash_size);
+                  };
+
+                }
+
+                if (matrix[i][j] != -2) {
+                  ctx.strokeStyle = '#000000';
+                  ctx.strokeRect(j * col_width, i * row_height, col_width, row_height);
                 }
             }
         }
-
     }
 
-    begin() {
-        var ctx = this.canvas.getContext('2d');
-        ctx.beginPath();
-    }
-
-    finish() {
-        var ctx = this.canvas.getContext('2d');
-        ctx.stroke();
+    getRandomInt(min, max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     update_position(robot, first_time) {
-        let width = this.canvas.width;
-        let height = this.canvas.height;
+      let width = this.canvas.width;
+      let height = this.canvas.height;
 
-        let row_height = height / this.rows;
-        let col_width = width / this.cols;
+      let row_height = height / this.rows;
+      let col_width = width / this.cols;
 
-        let x = (robot.current_position.x + 0.5) * col_width;
-        let y = (robot.current_position.y + 0.5) * row_height;
+      let x = (robot.current_position.x + 0.5) * col_width;
+      let y = (robot.current_position.y + 0.5) * row_height;
 
-        var ctx = this.canvas.getContext('2d');
-        if (first_time)
-            ctx.moveTo(x, y);
-        else
-            ctx.lineTo(x, y);
+      var ctx = this.canvas.getContext('2d');
+      if (first_time)
+        ctx.moveTo(x, y);
+      else
+        ctx.lineTo(x, y);
 
-        this.pointer.style.transform = 'translate('+x+'px, '+y+'px)';
-        ctx.strokeStyle = '#ff0000';
-        ctx.stroke();
+      this.pointer.style.transform = 'translate('+x+'px, '+y+'px)';
+      ctx.strokeStyle = '#ff0000';
+      ctx.stroke();
     }
 
-    update_target(current) {
-        let width = this.canvas.width;
-        let height = this.canvas.height;
+    clear_floor(from_x, from_y, width, height){
+      var ctx = this.canvas.getContext('2d');
+      //console.log('[pos]' + from_x + ',' + from_y + ',' + width + ',' + height);
+      ctx.clearRect(from_x, from_y, width, height);
+      //this.ctx.fillStyle="#ffffff";
+      //this.ctx.fillRect(from_x, from_y, width, height);
 
-        let row_height = height / this.rows;
-        let col_width = width / this.cols;
-
-        let x = (current.x + 0.5) * col_width;
-        let y = (current.y + 0.5) * row_height;
-
-        document.getElementById(this.target_id).style.left = x+'px';
-        document.getElementById(this.target_id).style.top = y+'px';
+      ctx.strokeStyle = '#000000';
+      ctx.strokeRect(from_x, from_y, width, height);
     }
 
-    draw_grid(ctx) {
-        let width = this.canvas.width;
-        let height = this.canvas.height;
+    clear_floor_start(start_x, start_y){
+      var ctx = this.canvas.getContext('2d');
+      let width = this.canvas.width;
+      let height = this.canvas.height;
+      let row_height = height / this.rows;
+      let col_width = width / this.cols;
 
-        let row_height = height / this.rows;
-        let col_width = width / this.cols;
+      //this.ctx.fillStyle="#ffffff";
+      //this.ctx.fillRect(start_x, start_y, col_width, row_height);
+      if(map_matrix[start_y][start_x] == 1 || map_matrix[start_y][start_x] == 3 ||
+          map_matrix[start_y][start_x] == 4){
+        ctx.clearRect(start_x, start_y, col_width, row_height);
         ctx.strokeStyle = '#000000';
-
-        for(let i = 1; i < this.rows; i++) {
-            ctx.beginPath();
-            ctx.moveTo(0, i * row_height);
-            ctx.lineTo(width, i * row_height);
-            ctx.stroke();
-        }
-
-        for(let i = 1; i < this.cols; i++) {
-            ctx.beginPath();
-            ctx.moveTo(i * col_width, 0);
-            ctx.lineTo(i * col_width, height);
-            ctx.stroke();
-        }
+        ctx.strokeRect(start_x, start_y, col_width, row_height);
+      }
     }
+
 }
 
 class Robot {
 
-    constructor(matrix, start_position, start_direction, app) {
+    constructor(app, matrix, start_position, move_time) {
         this.matrix = matrix;
         this.start_position = {x: start_position.x, y: start_position.y};
         this.current_position = {x: start_position.x, y: start_position.y};
-        this.start_direction = start_direction;
-        this.current_direction = start_direction;
         this.loggable = true;
         this.app = app;
         this.move_count = 0;
         this.turn_count = 0;
         this.__visited_position = {};
         this.app.update_position(this, true);
-        this.move_time = 1000;
+        this.move_time = move_time;
     }
 
     turn_left() {
@@ -159,20 +266,30 @@ class Robot {
     }
 
     move(next_pos_x, next_pos_y) {
+      //this.app.begin();
         this.move_count++;
         this.current_position.x = next_pos_x;
         this.current_position.y = next_pos_y;
+        //this.app.update_position(this);
+
+        // Clear floor after sweep
+        let width = this.app.canvas.width;
+        let height = this.app.canvas.height;
+        let row_height = height / this.app.rows;
+        let col_width = width / this.app.cols;
+
+        let map_matrix = this.matrix;
+        if(map_matrix[next_pos_y][next_pos_x] == 1 || map_matrix[next_pos_y][next_pos_x] == 3 ||
+            map_matrix[next_pos_y][next_pos_x] == 4){
+          if(!(next_pos_x + "_" + next_pos_y in this.__visited_position)) {
+            this.app.clear_floor(next_pos_x * col_width, next_pos_y * row_height, col_width, row_height);
+          }
+        }
+
         this.__visited_position[next_pos_x + "_" + next_pos_y] = 1;
-        if (this.loggable)
-            this.log();
+
         this.app.update_position(this);
-        /*
-        return new Promise(resolve => {
-            setTimeout(function() {
-                resolve();
-            }, this.move_time);
-        });
-        */
+        //this.app.finish();
     }
 
     __can_move(next_pos_x, next_pos_y) {
@@ -184,41 +301,11 @@ class Robot {
             return false;
         return this.matrix[next_pos_y][next_pos_x] == 0;
     }
-
-    log() {
-        for(let i in this.matrix) {
-            let text = "";
-            for(let j in this.matrix[i]) {
-                if (i == this.current_position.y && j == this.current_position.x) {
-                    if (this.current_direction == 0)
-                        text += '>';
-                    else if (this.current_direction == 1)
-                        text += '^';
-                    else if (this.current_direction == 2)
-                        text += '<';
-                    else
-                        text += 'v';
-                } else if (this.__visited_position[j + "_" + i] == 1) {
-                    text += '*';
-                } else if (this.matrix[i][j] == 0) {
-                    text += '.';
-                } else {
-                    text += '|';
-                }
-            }
-            console.log(text);
-        }
-    }
 }
 
 class RouteDraw {
     constructor(robot) {
-        this.current_direction = 0;
-        this.current_position = {x: 0, y: 0};
-        this.observed_map = {0: {0: 1}};
         this.robot = robot;
-        this.loggable = true;
-        this.spiral = false;
     }
 
     move(x, y) {

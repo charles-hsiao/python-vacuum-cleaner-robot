@@ -1,56 +1,135 @@
 <title>Cleaning Robot Showdown</title>
 
 <link rel="stylesheet" type="text/css" href="style.css">
-
+<!--
 <h1>
     Cleaning Robot
 </h1>
-
+-->
 <div id="config">
+
+  <div class="container">
     <div class="row">
-        <span class="label">Number of rows:</span> <input value="3" type="text" id="rows" />
+      <span class="label">Example 1</span>
     </div>
     <div class="row">
-        <span class="label">Number of cols:</span> <input value="3" type="text" id="cols" />
+      <input type="image" src="image/example_1.png" style="width:300px;height:300px;" onclick="create_game('example_1');">
     </div>
     <div class="row">
-        <span class="label">Number of obstacles:</span> <input value="2" type="text" id="obstacles" />
+      <span class="label">Map matrix:</span>
     </div>
     <div class="row">
-        <span class="label">Move transition (ms):</span> <input value="100" type="text" id="move_time" />
+      <textarea id="map_matrix_1" rows="5" cols="45" disabled="disabled">[[0, -1, -2], [2, 0, 0], [3, 4, -1]]</textarea>
     </div>
-    <button onclick="create_game()">Create Game</button>
+  </div>
+
+  <div class="container">
+    <div class="row">
+      <span class="label">Example 2</span>
+    </div>
+    <div class="row">
+      <input type="image" src="image/example_2.png" style="width:300px;height:300px;" onclick="create_game('example_2');">
+    </div>
+    <div class="row">
+      <span class="label">Map matrix:</span>
+    </div>
+    <div class="row">
+      <textarea id="map_matrix_2" rows="5" cols="45" disabled="disabled">[[0, 0, -1], [1, 0, 2], [4, 0, 2]]</textarea>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="row">
+      <span class="label">Example 3</span>
+    </div>
+    <div class="row">
+      <input type="image" src="image/example_3.png" style="width:300px;height:300px;" onclick="create_game('example_3');">
+    </div>
+    <div class="row">
+      <span class="label">Map matrix:</span>
+    </div>
+    <div class="row">
+      <textarea id="map_matrix_3" rows="5" cols="45" disabled="disabled">[[2, 2, 2, 2, 2], [0, -1, -1, -2, -2], [3, -1, 0, -2, -2], [4, -1, 4, 1, 1], [3, -1, 0, 1, 1], [3, 3, 3, -2, -2]]</textarea>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="row">
+      <span class="label">Example 4</span>
+    </div>
+    <div class="row">
+      <input type="image" src="image/example_4.png" style="width:300px;height:300px;" onclick="create_game('example_4');">
+    </div>
+    <div class="row">
+      <span class="label">Map matrix:</span>
+    </div>
+    <div class="row">
+      <textarea id="map_matrix_4" rows="5" cols="45" disabled="disabled">[[-2, -2, 0, 0, 0, 3], [0, -1, -1, -1, -1, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [3, 4, 4, 1, 1, 1], [3, 3, 0, 1, 1, 1, 1], [2, 2, 2, 2, 2, 2]]</textarea>
+    </div>
+  </div>
+
 </div>
 
 <div id="game">
     <div>
-        <button id="btn_run" onclick="run()">Run</button>
         <button id="btn_reset" onclick="restart()">Create another game</button>
     </div>
-
+  <!--
     <h2>
         Winner: <span id="winner"></span>
     </h2>
+  -->
     <div class="container">
-        <div id="pointer1" class="pointer"></div>
-        <div id="target1" class="target" style="display:none;"></div>
-        <canvas id="canvas1" width="500px" height="500px"></canvas>
+        <div id="pointer" class="pointer"></div>
+        <div id="target" class="target" style="display:none;"></div>
+        <canvas id="canvas" width="500px" height="500px"></canvas>
     </div>
+
+
+    <div class="container">
+      <div class="row">
+        <span class="label">Steps: </span><span id="span_steps_taken"></span>
+      </div>
+      <div class="row" style="display:none;">
+        <span class="label">Turns: </span><span id="span_turns_taken"></span>
+      </div>
+      <div class="row" style="display:none;">
+        <span class="label">Floor type: </span><span id="span_floor_type"></span>
+      </div>
+      <div class="row" style="display:none;">
+        <span class="label">Mode: </span><span id="span_mode"></span>
+      </div>
+      <div class="row" style="display:none;">
+        <canvas id="tutorial" width="440" height="220">
+    		  Canvas not available.
+    	  </canvas>
+      </div>
+      <div class="row" style="display:none;">
+        <div><span class="label">Vacumm strength</span><div>
+      </div>
+
+    </div>
+
+
+
 </div>
 
-<!-- Prevent JS cache -->
-<script src="robot.js?q=1a" type="text/javascript"></script>
+<script src="robot_poc.js" type="text/javascript"></script>
+<script src="speedometer.js"></script>
 
 <script type="text/javascript">
     let app1 = null;
-    //let app2 = null;
-    //let app3 = null;
-
     let robot1 = null;
-    //let robot2 = null;
-    //let robot3 = null;
 
     let map_patrix = null;
+    let rows = null;
+    let cols = null;
+    let start_position_x = null;
+    let start_position_y = null;
+    let move_time = null;
+    let sleep_count = 0;
+
+    draw(0);
 
     document.addEventListener("DOMContentLoaded", function(event) {
         document.getElementById('game').style.display = 'none';
@@ -61,68 +140,62 @@
         document.getElementById('game').style.display = 'none';
         document.getElementById('config').style.display = 'block';
         document.getElementById('btn_reset').style.display = 'none';
-        document.getElementById('btn_run').disabled = false;
     }
 
-    function create_game() {
-        //let rows = document.getElementById('rows').value;
-        //let cols = document.getElementById('cols').value;
-        let rows = 5;
-        let cols = 5;
-        let obstacles = document.getElementById('obstacles').value;
-        let move_time = document.getElementById('move_time').value;
-
-        app1 = new Application(rows, cols, obstacles, 'canvas1', 'pointer1', 'target1');
-        app1.load_app();
-
-        //map_matrix = [[0, -1, 1], [2, 3, 4], [0, 0, -1]]
-
-        //let input = random_matrix(rows, cols, obstacles);
-	let input = {};
-        //input.matrix = [[0, 0, 0], [0, 0, 0], [0, 0, 1]];
-        map_matrix = [[2, 2, 2, 2, 2], [0, -1, -1, -1, -1], [0, 0, 0, 0, 0], [0, 0, 0, 1, 1], [0, 0, 0, 1, 1]];
-
-        input.matrix = map_matrix;
-        //input.start_position = {"x": 0, "y": 0};
-        input.start_position = {"x": 0, "y": 5};
-
-        app1.begin();
-        robot1 = new Robot(input.matrix, input.start_position, 3, app1);
-        //robot1.move_time = move_time;
-        app1.draw_obstacle(input.matrix);
-
-        document.getElementById('config').style.display = 'none';
-        document.getElementById('game').style.display = 'block';
-    }
-
-    function move_swepper(swepper, x, y, sec) {
-        setTimeout(function(){
-          swepper.move(x, y);
-        }, sec);
-    }
-
-    function draw_path(swepper, path) {
-      //let swepper1 = new RouteDraw(robot1);
-      let time_gap = 500;
-      let sleep = 0;
-
-      for (let i = 0; i < path.length; i++) {
-        spot_x = path[i][0];
-        spot_y = path[i][1];
-        move_swepper(swepper, spot_x, spot_y, sleep + i*time_gap);
+    function create_game(example_str) {
+      if(example_str == 'example_1'){
+        map_matrix_str = document.getElementById('map_matrix_1').value;
+        start_position_x = 0;
+        start_position_y = 0;
+        move_time = 300;
       }
-    }
+      else if(example_str == 'example_2'){
+        map_matrix_str = document.getElementById('map_matrix_2').value;
+        start_position_x = 1;
+        start_position_y = 0;
+        move_time = 300;
+      }
+      else if(example_str == 'example_3'){
+        map_matrix_str = document.getElementById('map_matrix_3').value;
+        start_position_x = 0;
+        start_position_y = 0;
+        move_time = 300;
+      }
+      else {
+        map_matrix_str = document.getElementById('map_matrix_4').value;
+        start_position_x = 2;
+        start_position_y = 0;
+        move_time = 300;
+      }
 
-    function run() {
-        //document.getElementById('btn_run').disabled = true;
-        api_route_plan();
+      eval('map_matrix=' + map_matrix_str);
+
+      rows = map_matrix.length;
+      cols = map_matrix[0].length;
+
+      app1 = new Application(rows, cols, 'canvas', 'pointer', 'target');
+      app1.load_app(map_matrix);
+
+      let input = {};
+      input.matrix = map_matrix;
+      input.start_position = {"x": start_position_x, "y": start_position_y};
+
+      robot1 = new Robot(app1, input.matrix, input.start_position, input.move_time);
+      app1.draw_obstacle(input.matrix);
+      app1.begin(robot1);
+
+      document.getElementById('config').style.display = 'none';
+      document.getElementById('game').style.display = 'block';
+
+      // Call API
+      api_route_plan();
     }
 
     function api_route_plan() {
       var data = {};
       data.map_matrix = JSON.stringify(map_matrix);
-      data.start_position = '{"x": 0, "y": 5}';
-      data.start_direction = 0
+      data.start_position = JSON.stringify({"x": start_position_x, "y": start_position_y});
+      data.start_direction = 0;
       var json = JSON.stringify(data);
 
       var req = new XMLHttpRequest();
@@ -130,17 +203,119 @@
       req.setRequestHeader('Content-type', 'application/json');
       req.withCredentials = false;
       req.onload = function() {
-        console.log(req);
+        //console.log(req);
         var obj = JSON.parse(req.responseText);
         let swepper1 = new RouteDraw(robot1);
         let obj_path = JSON.parse(obj.path);
-        draw_path(swepper1, obj_path);
-        //document.getElementById('span_path').innerHTML = obj.path;
-        //document.getElementById('span_steps_taken').innerHTML = obj.steps_taken;
-        //document.getElementById('span_turns_taken').innerHTML = obj.turns_taken;
-        //document.getElementById('span_times_taken').innerHTML = obj.times_taken;
+        draw_path(swepper1, obj_path, obj);
       };
       req.send(json);
+    }
+
+    function draw_path(swepper, path, result_obj) {
+      let time_gap = move_time;
+      let sleep = 500;
+
+      // Clear start position color if necessary
+      //app1.clear_floor_start(start_position_x, start_position_y);
+
+      let count = 0;
+      let end_flag = false;
+      let obj = null;
+      for (let i = 0; i < path.length; i++) {
+        let spot_x = path[i][0];
+        let spot_y = path[i][1];
+        let clean_mode = path[i][2];
+        let clean_strength = path[i][3];
+        let floor_type = map_matrix[spot_y][spot_x];
+        // Slow down for carpet floor
+        if(floor_type == 2){
+          sleep_count ++;
+        }
+
+        count ++;
+        if (count == path.length){
+          end_flag = true;
+          obj = result_obj;
+        }
+
+        move_swepper(swepper, spot_x, spot_y, count, floor_type, clean_mode, clean_strength, sleep*sleep_count + i*time_gap, end_flag, obj);
+      }
+
+    }
+
+    function move_swepper(swepper, x, y, steps, floor_type, clean_mode, clean_strength, sec, is_end, obj) {
+        setTimeout(function(){
+          // Move robot & Draw path
+          console.log('[Move]' + x + ',' + y);
+          swepper.move(x, y);
+
+          // Steps_display
+          document.getElementById('span_steps_taken').innerHTML = steps;
+
+          // Floor type display
+          // Floor type: -2=Empty; -1=Obstacle; 0=Normal floor;
+          // 1=Wet floor; 2=Carpet; 3=Dirty floor; 4=Floor with trash
+          let floor_type_str = "";
+          if(floor_type == 0){
+            floor_type_str = "Clean";
+          }
+          else if(floor_type == 1){
+            floor_type_str = "Wet";
+          }
+          else if(floor_type == 2){
+            floor_type_str = "Carpet";
+          }
+          else if(floor_type == 3){
+            floor_type_str = "Dirty";
+          }
+          else if(floor_type == 4){
+            floor_type_str = "Trash";
+          }
+
+          document.getElementById('span_floor_type').innerHTML = floor_type_str;
+
+          // Display metrics dashboard
+          // Clean Mode: 0=None; 1=Vacuum Cleaner; 2=Mop; 3=Broom
+          let clean_mode_str = "";
+          if(clean_mode == "0"){
+            clean_mode_str = "None";
+          }
+          else if(clean_mode == "1"){
+            clean_mode_str = "Vacuum cleaner";
+          }
+          else if(clean_mode == "2"){
+            clean_mode_str = "Mop";
+          }
+          else{
+            clean_mode_str = "Broom";
+          }
+
+          document.getElementById('span_mode').innerHTML = clean_mode_str;
+
+          // Clean Strength(Only on Vacuum Cleaner mode): 0=None; 1=Week; 2=Medium; 3=Strong
+          strength = clean_strength * 30;
+          drawWithInputValue(strength);
+
+
+          if(is_end){
+            display_result(obj);
+          }
+
+        }, sec);
+    }
+
+    function display_result(obj){
+      let steps_taken = obj.steps_taken;
+      let turns_taken = obj.turns_taken;
+      let times_taken = obj.times_taken;
+      console.log('[steps_taken] ' + steps_taken);
+      console.log('[turns_taken] ' + turns_taken);
+      console.log('[times_taken] ' + times_taken);
+
+      document.getElementById('span_turns_taken').innerHTML = turns_taken;
+      document.getElementById('span_steps_taken').innerHTML = steps_taken;
+
     }
 
 </script>
