@@ -9,12 +9,14 @@ class BFSSweeper(object):
         self.robot = robot
         self.loggable = False
         self.spiral = True
+        self.first_move = True
 
     def sweep(self):
         while self.move():
             pass
 
     def move(self):
+
         self.log('looking for nearest unvisited position')
         target_path = self.find_nearest_unvisited_pos()
         if not target_path:
@@ -25,6 +27,9 @@ class BFSSweeper(object):
         return True
 
     def find_nearest_unvisited_pos(self):
+        #if self.first_move:
+        #    self.first_move = False
+        #else:
         return bfs(self.current_position, self.current_direction, self.node_unvisited, self.adjacent_movable, self.spiral)
 
     def node_unvisited(self, node):
