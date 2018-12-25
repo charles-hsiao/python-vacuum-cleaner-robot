@@ -1,6 +1,6 @@
 class Application {
 
-    constructor(rows, cols, canvas_id, pointer_id, target_id) {
+    constructor(rows, cols, canvas_id, pointer_id, target_id, img) {
         this.rows = rows;
         this.cols = cols;
         this.canvas_id = canvas_id;
@@ -8,14 +8,14 @@ class Application {
         this.target_id = target_id;
         this.canvas = null;
         this.pointer = null;
-        //this.ctx = null;
+        this.img = img;
+        this.items = {};
+        this.items_matrix = [];
     }
 
     load_app(matrix) {
         this.canvas = document.getElementById(this.canvas_id);
         this.pointer = document.getElementById(this.pointer_id);
-        //this.ctx = this.canvas.getContext('2d');
-        //this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
     begin(robot) {
@@ -39,8 +39,165 @@ class Application {
       ctx.stroke();
     }
 
+    click_map(x, y, floor_type, robot){
+      let width = this.canvas.width;
+      let height = this.canvas.height;
+
+      let row_height = height / this.rows;
+      let col_width = width / this.cols;
+
+      let selected_x = Math.floor(x/col_width);
+      let selected_y = Math.floor(y/row_height);
+
+      //console.log('[xy]' + selected_x + ',' + selected_y + ';' + selected_floor);
+
+      if(floor_type != -3){
+        if(robot.matrix[selected_y][selected_x] == 4){
+          this.items_matrix[selected_x][selected_y] = 0;
+        }
+
+        robot.matrix[selected_y][selected_x] = selected_floor;
+
+        this.draw_floor(selected_x, selected_y, selected_floor, robot);
+      }
+    }
+
+    clear_all(robot){
+      let new_map_matrix = [];
+      for(let i=0; i<rows; i++){
+        new_map_matrix[i] = [];
+        for(let j=0; j<cols; j++){
+          new_map_matrix[i][j] = 0;
+          this.items_matrix[j][i] = 0;
+          this.draw_floor(j, i, 0, robot)
+        }
+      }
+      robot.matrix = new_map_matrix;
+    }
+
+    draw_floor(pos_x, pos_y, floor_type, robot){
+
+      var ctx = this.canvas.getContext('2d');
+
+      let width = this.canvas.width;
+      let height = this.canvas.height;
+
+      let row_height = height / this.rows;
+      let col_width = width / this.cols;
+
+      // Clear
+      ctx.clearRect(pos_x*col_width, pos_y*row_height, col_width, row_height);
+      if(floor_type != -2){
+        ctx.strokeStyle = '#000000';
+        ctx.strokeRect(pos_x*col_width, pos_y*row_height, col_width, row_height);
+      }
+
+      if (floor_type == -1 || floor_type == 2) {
+        if (floor_type == -1)
+          ctx.fillStyle="#000000";
+        else if (floor_type == 2)
+          ctx.fillStyle="#adadad";
+
+        ctx.fillRect(pos_x*col_width, pos_y*row_height, col_width, row_height);
+      }
+
+      // Wet floor
+      if (floor_type == 1){
+        let img_base_url = 'image/';
+        let water_img_list = [
+          img_base_url+'water-coffee_1.png',
+          img_base_url+'water-coffee_2.png',
+          img_base_url+'water-spalsh_2.png',
+          img_base_url+'water-spalsh_3.png'
+        ];
+
+        var img = new Image();
+        img.src = water_img_list[Math.floor(Math.random() * water_img_list.length)]
+        let water_size = 0;
+        if (col_width >= row_height){
+          let resize_rate = this.getRandomInt(1, 3);
+          water_size = Math.floor( row_height/resize_rate );
+        }
+        else{
+          let resize_rate = this.getRandomInt(1, 3);
+          water_size = Math.floor( col_width/resize_rate );
+        }
+
+        if (water_size < 20){
+           water_size = 20;
+        }
+
+        let dot_x = this.getRandomInt(pos_x*col_width, pos_x*col_width + col_width - water_size);
+        let dot_y = this.getRandomInt(pos_y*row_height, pos_y*row_height + row_height - water_size);
+
+        img.onload = function() {
+          ctx.drawImage(this, dot_x, dot_y, water_size, water_size);
+        };
+      }
+
+      // Dirty floor
+      if (floor_type == 3){
+        let dot_num = this.getRandomInt(10, 50);
+        let dot_size = 1;
+
+        for(let k=0; k < dot_num; k++){
+          ctx.beginPath();
+          let dot_x = this.getRandomInt(pos_x*col_width, pos_x*col_width + col_width);
+          let dot_y = this.getRandomInt(pos_y*row_height, pos_y*row_height + row_height);
+          ctx.arc(dot_x, dot_y, dot_size, 0, 2*Math.PI);
+          ctx.stroke();
+        }
+        // Back to start position
+        ctx.beginPath();
+        (robot.start_position.x + 0.5) * col_width;
+        ctx.moveTo((robot.start_position.x + 0.5)*col_width, (robot.start_position.y + 0.5) * row_height);
+        //ctx.moveTo(Math.floor((robot.start_position.x*col_width + col_width)/2), Math.floor((robot.start_position.y*row_height + row_height)/2));
+        ctx.stroke();
+      }
+
+      // Floor with trash
+      if (floor_type == 4){
+        let img_base_url = 'image/';
+        let trash_img_list = [
+          img_base_url+'trash-banana.jpg',
+          img_base_url+'trash-paper_wad.png',
+          img_base_url+'trash-can.jpg',
+          img_base_url+'item-pen.png',
+          img_base_url+'item-slipper.png',
+          img_base_url+'item-toy_2.png',
+          img_base_url+'item-toy_3.png',
+          img_base_url+'item-toy_4.png',
+          img_base_url+'item-toy_5.png'
+        ];
+
+        var img = new Image();
+        img.src = trash_img_list[Math.floor(Math.random() * trash_img_list.length)];
+        this.items_matrix[pos_y][pos_x] = img.src;
+
+        let trash_size = 0;
+        if (col_width >= row_height){
+          let resize_rate = this.getRandomInt(3, 5);
+          trash_size = Math.floor( row_height/resize_rate );
+        }
+        else{
+          let resize_rate = this.getRandomInt(3, 5);
+          trash_size = Math.floor( col_width/resize_rate );
+        }
+
+        if (trash_size < 20){
+           trash_size = 20;
+        }
+
+        let dot_x = this.getRandomInt(pos_x*col_width, pos_x*col_width + col_width - trash_size);
+        let dot_y = this.getRandomInt(pos_y*row_height, pos_y*row_height + row_height - trash_size);
+
+        img.onload = function() {
+          ctx.drawImage(this, dot_x, dot_y, trash_size, trash_size);
+        };
+      }
+    }
+
     draw_obstacle(matrix) {
-       //this.ctx.beginPath();
         let width = this.canvas.width;
         let height = this.canvas.height;
 
@@ -48,18 +205,27 @@ class Application {
         let col_width = width / this.cols;
 
         var ctx = this.canvas.getContext('2d');
-        /*
-        var img = new Image();
-        img.src = 'image/layout-main5.jpg';
 
-        img.onload = function() {
-          ctx.drawImage(this, 0, 0, width, height);
-        };
-        */
-//ctx.drawImage(img,0,0);
-        //this.ctx.beginPath();
+        if(this.img != null){
+          var img = new Image();
+          img.src = 'image/' + this.img;
+
+          img.onload = function() {
+            ctx.drawImage(this, 0, 0, width, height);
+          };
+        }
+
+        // Init items_matrix
+        for(let i = 0; i < matrix.length; i++) {
+          this.items_matrix[i] = [];
+          for(let j = 0; j < matrix[i].length; j++) {
+            this.items_matrix[i][j] = 0;
+          }
+        }
+
         for(let i = 0; i < matrix.length; i++) {
             for(let j = 0; j < matrix[i].length; j++) {
+                //let current_item = '';
                 let floor_type = matrix[i][j];
 
                 if (floor_type == -1 || floor_type == 2) {
@@ -77,7 +243,6 @@ class Application {
                   let water_img_list = [
                     img_base_url+'water-coffee_1.png',
                     img_base_url+'water-coffee_2.png',
-                    img_base_url+'water-spalsh_1.jpg',
                     img_base_url+'water-spalsh_2.png',
                     img_base_url+'water-spalsh_3.png'
                   ];
@@ -122,18 +287,6 @@ class Application {
 
                 // Floor with trash
                 if (floor_type == 4){
-                  /*
-                  let dot_num = this.getRandomInt(2, 10);
-                  let dot_size = this.getRandomInt(5, 10);
-
-                  for(let k=0; k < dot_num; k++){
-                    ctx.beginPath();
-                    let dot_x = this.getRandomInt(j*col_width, j*col_width + col_width - dot_size);
-                    let dot_y = this.getRandomInt(i*row_height, i*row_height + row_height - dot_size);
-                    ctx.arc(dot_x, dot_y, dot_size, 0, 2*Math.PI);
-                    ctx.stroke();
-                  }
-                  */
                   let img_base_url = 'image/';
                   let trash_img_list = [
                     img_base_url+'trash-banana.jpg',
@@ -141,7 +294,6 @@ class Application {
                     img_base_url+'trash-can.jpg',
                     img_base_url+'item-pen.png',
                     img_base_url+'item-slipper.png',
-                    img_base_url+'item-toy_1.jpeg',
                     img_base_url+'item-toy_2.png',
                     img_base_url+'item-toy_3.png',
                     img_base_url+'item-toy_4.png',
@@ -149,7 +301,19 @@ class Application {
                   ];
 
                   var img = new Image();
-                  img.src = trash_img_list[Math.floor(Math.random() * trash_img_list.length)]
+                  img.src = trash_img_list[Math.floor(Math.random() * trash_img_list.length)];
+                  /*
+                  let current_count = 0;
+                  if (img.src in this.items){
+                      current_count = this.items[img.src];
+                      this.items[img.src] = current_count + 1;
+                  }
+                  else{
+                      this.items[img.src] = 1;
+                  }
+                  */
+                  this.items_matrix[j][i] = img.src;
+
                   let trash_size = 0;
                   if (col_width >= row_height){
                     let resize_rate = this.getRandomInt(3, 5);
@@ -170,7 +334,6 @@ class Application {
                   img.onload = function() {
                     ctx.drawImage(this, dot_x, dot_y, trash_size, trash_size);
                   };
-
                 }
 
                 if (matrix[i][j] != -2) {
@@ -179,6 +342,74 @@ class Application {
                 }
             }
         }
+
+        console.log(this.items_matrix);
+    }
+
+    drawPickedItems(robot){
+      for(let i=0; i<this.items_matrix.length; i++){
+        for(let j=0; j<this.items_matrix[i].length; j++){
+          let img_src = this.items_matrix[i][j];
+          let current_count = 0;
+          if (img_src in this.items){
+              current_count = this.items[img_src];
+              this.items[img_src] = current_count + 1;
+          }
+          else{
+              this.items[img_src] = 1;
+          }
+        }
+      }
+
+      console.log(this.items);
+      console.log(robot.start_position);
+
+      let start_x = robot.start_position.x;
+      let start_y = robot.start_position.y;
+
+      let width = this.canvas.width;
+      let height = this.canvas.height;
+
+      let row_height = height / this.rows;
+      let col_width = width / this.cols;
+
+      var ctx = this.canvas.getContext('2d');
+
+      let item_count = 0;
+      for (let key in this.items){
+        if(key.includes("item")){
+          item_count = item_count + this.items[key];
+        }
+      }
+      console.log('[Item Count]' + item_count);
+
+      let item_size = 30;
+      let items_per_row = Math.floor(col_width/item_size);
+
+      let counter = 0;
+      for (let key in this.items){
+        if(key.includes("item")){
+          let volume = this.items[key];
+
+          for(let i=0; i<volume; i++){
+            let at_row = Math.floor(counter/items_per_row);
+            let at_col = counter%items_per_row;
+
+            let x = item_size * at_col + start_x * col_width;
+            let y = item_size * at_row + start_y * row_height;
+
+            var img = new Image();
+            img.src = key;
+            img.onload = function() {
+              ctx.drawImage(this, x, y, item_size, item_size);
+            };
+            counter++;
+            //console.log('[DRAW] ' + counter + '; ' + x + ',' + y);
+          }
+        }
+      }
+
+
     }
 
     getRandomInt(min, max) {
