@@ -193,6 +193,7 @@
 
     function api_route_plan() {
       var data = {};
+      data.algorithm = 'dfs';
       data.map_matrix = JSON.stringify(map_matrix);
       data.start_position = JSON.stringify({"x": start_position_x, "y": start_position_y});
       data.start_direction = 0;

@@ -52,3 +52,24 @@
     display: inline-block;
     width: 150px;
 }
+
+.btn_floor {
+    width:120px;
+    height:40px;
+    border:1px black solid;
+}
+
+.btn_floor_selected {
+    width:120px;
+    height:40px;
+    background-color: blue;
+    color: white;
+    border:3px yellow double;
+}
+
+.btn_floor_cleared {
+    width:120px;
+    height:40px;
+    background-color: red;
+    color: white;
+}
