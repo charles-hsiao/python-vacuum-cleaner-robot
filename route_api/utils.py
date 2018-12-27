@@ -32,6 +32,7 @@ def print_observed_map(sweeper):
         print(text)
     print('')
 
+
 def bfs(start_position, start_direction, finish_check_fn, adjacent_check_fn, spiral):
     # this is just simple BFS implementation
     checked = {}
@@ -55,6 +56,7 @@ def bfs(start_position, start_direction, finish_check_fn, adjacent_check_fn, spi
                     and adjacent_check_fn(node):
                 checked[key] = 1
                 queue.append(node)
+
 
 def adjacent(current, start_direction, spiral):
     if spiral:

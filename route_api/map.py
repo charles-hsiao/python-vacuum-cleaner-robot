@@ -33,7 +33,7 @@ def map_matrix_transfer(matrix):
 # | Floor with Trash | 4    | O             | Broom (3)          | 0               |
 
 # Clean Mode: 0=None; 1=Vacuum Cleaner; 2=Mop; 3=Broom
-# Clean Strength(Only on Vacuum Cleaner mode): 0=None; 1=Week; 2=Medium; 3=Strong
+# Clean Strength(Only on Vacuum Cleaner mode): 0=None; 1=Weak; 2=Medium; 3=Strong
 
 
 def path_append_attributes(matrix, path):

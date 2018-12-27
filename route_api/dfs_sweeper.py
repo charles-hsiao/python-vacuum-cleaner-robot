@@ -2,7 +2,7 @@ class DFSSweeper(object):
     def __init__(self, robot):
         self.observed_map = {}
         self.robot = robot
-        self.loggable = True
+        self.loggable = False
 
     def sweep(self):
         self.move({'x': 0, 'y': 0}, 0)
