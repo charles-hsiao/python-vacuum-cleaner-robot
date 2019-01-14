@@ -92,7 +92,7 @@
         </select>
         <span class="label">Speed(ms): </span><input id="speed" value='300'/>
         <button id="btn_run" onclick="api_route_plan()">Run</button>
-        <button id="btn_shortest" onclick="click_paint(999)">Create another game</button>
+        <button id="btn_shortest" onclick="click_paint(999)">Target Clean</button>
       </div>
     </div>
 
@@ -149,6 +149,9 @@
     let move_time = null;
     let sleep_count = 0;
     let selected_floor = 0;
+    let is_target_set = false;
+    //let end_position_x = null;
+    //let end_position_y = null;
 
     // Draw speedometer
     draw(0);
@@ -162,10 +165,14 @@
     document.getElementById('canvas').addEventListener('click',function(evt){
       var pos = getMousePos(canvas, evt);
       app1.click_map(pos.x, pos.y, selected_floor, robot1);
-      map_matrix = robot1.matrix;
       if(selected_floor == 999){
-
+        selected_floor = -3;
+        document.getElementById('btn_shortest').style.display = 'none';
+        is_target_set = true;
+        //end_position_x = app1.end_position_x;
+        //end_position_y = app1.end_position_y;
       }
+      map_matrix = robot1.matrix;
     },false);
 
     function getMousePos(canvas, evt) {
@@ -256,6 +263,13 @@
       }
       else if(floor_type == 999){
         selected_floor = 999;
+        document.getElementById('s_empty').className = 'btn_floor';
+        document.getElementById('s_obstacle').className = 'btn_floor';
+        document.getElementById('s_normal').className = 'btn_floor';
+        document.getElementById('s_wet').className = 'btn_floor';
+        document.getElementById('s_carpet').className = 'btn_floor';
+        document.getElementById('s_dirty').className = 'btn_floor';
+        document.getElementById('s_trash').className = 'btn_floor';
       }
       else{
         if(confirm('Do you want to clear all the map matrix?')){
@@ -340,13 +354,26 @@
 
     function api_route_plan() {
       document.getElementById('btn_run').style.display = 'none';
-      algorithm = document.getElementById('select_algorithm').value;
 
-      var data = {};
-      data.algorithm = algorithm;
-      data.map_matrix = JSON.stringify(map_matrix);
-      data.start_position = JSON.stringify({"x": start_position_x, "y": start_position_y});
-      data.start_direction = 0;
+      if(is_target_set){
+        algorithm = 'dijkstra';
+
+        var data = {};
+        data.algorithm = algorithm;
+        data.map_matrix = JSON.stringify(map_matrix);
+        data.start_position = JSON.stringify({"x": start_position_x, "y": start_position_y});
+        data.start_direction = 0;
+        data.end_position = JSON.stringify({"x": app1.end_position_x, "y": app1.end_position_y});
+      }
+      else{
+        algorithm = document.getElementById('select_algorithm').value;
+
+        var data = {};
+        data.algorithm = algorithm;
+        data.map_matrix = JSON.stringify(map_matrix);
+        data.start_position = JSON.stringify({"x": start_position_x, "y": start_position_y});
+        data.start_direction = 0;
+      }
       var json = JSON.stringify(data);
 
       var req = new XMLHttpRequest();
