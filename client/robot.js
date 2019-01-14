@@ -49,8 +49,6 @@ class Application {
       let selected_x = Math.floor(x/col_width);
       let selected_y = Math.floor(y/row_height);
 
-      //console.log('[xy]' + selected_x + ',' + selected_y + ';' + selected_floor);
-
       if(floor_type != -3){
         if(robot.matrix[selected_y][selected_x] == 4){
           this.items_matrix[selected_x][selected_y] = 0;
@@ -60,6 +58,7 @@ class Application {
 
         this.draw_floor(selected_x, selected_y, selected_floor, robot);
       }
+
     }
 
     clear_all(robot){
