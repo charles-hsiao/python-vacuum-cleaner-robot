@@ -11,6 +11,8 @@ class Application {
         this.img = img;
         this.items = {};
         this.items_matrix = [];
+        this.end_position_x = null;
+        this.end_position_y = null;
     }
 
     load_app(matrix) {
@@ -49,8 +51,6 @@ class Application {
       let selected_x = Math.floor(x/col_width);
       let selected_y = Math.floor(y/row_height);
 
-      //console.log('[xy]' + selected_x + ',' + selected_y + ';' + selected_floor);
-
       if(floor_type != -3){
         if(robot.matrix[selected_y][selected_x] == 4){
           this.items_matrix[selected_x][selected_y] = 0;
@@ -60,6 +60,12 @@ class Application {
 
         this.draw_floor(selected_x, selected_y, selected_floor, robot);
       }
+
+      if(floor_type == 999){
+        this.end_position_x = selected_x;
+        this.end_position_y = selected_y;
+      }
+
     }
 
     clear_all(robot){
@@ -73,6 +79,7 @@ class Application {
         }
       }
       robot.matrix = new_map_matrix;
+      document.getElementById('btn_shortest').style.display = 'inline';
     }
 
     draw_floor(pos_x, pos_y, floor_type, robot){
@@ -195,6 +202,38 @@ class Application {
           ctx.drawImage(this, dot_x, dot_y, trash_size, trash_size);
         };
       }
+
+      // Shortest path
+      if (floor_type == 999){
+
+        var img = new Image();
+        img.src = 'image/target.png';
+        this.items_matrix[pos_y][pos_x] = img.src;
+
+        let size = 0;
+        let resize_rate = 2;
+        if (col_width >= row_height){
+          size = Math.floor( row_height/resize_rate );
+        }
+        else{
+          size = Math.floor( col_width/resize_rate );
+        }
+
+        if (size < 20){
+           size = 20;
+        }
+
+        //let dot_x = this.getRandomInt(pos_x*col_width, pos_x*col_width + col_width - size);
+        //let dot_y = this.getRandomInt(pos_y*row_height, pos_y*row_height + row_height - size);
+
+       let dot_x = Math.floor( (pos_x+0.25)*col_width );
+       let dot_y = Math.floor( (pos_y+0.25)*row_height );
+
+        img.onload = function() {
+          ctx.drawImage(this, dot_x, dot_y, size, size);
+        };
+      }
+
     }
 
     draw_obstacle(matrix) {
